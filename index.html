@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tencent NeurIPS & SIGGRAPH Agenda</title>
+    
+    <style>
+        :root {
+            /* === 🎨 配色中心 === */
+            --page-bg-color: #2356DD; /* 深蓝背景 */
+            --primary-color: #2356DD; 
+            --card-bg: #ffffff;
+            --text-main: #1d1d1f;          
+            --text-sub: #86868b;           
+        }
+
+        /* --- 核心样式 --- */
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif; 
+            background-color: var(--page-bg-color);
+            color: #ffffff; 
+            padding: 20px; 
+            max-width: 600px; 
+            margin: 0 auto; 
+            padding-bottom: 120px; 
+            -webkit-tap-highlight-color: transparent; 
+        }
+        
+        #main-content { display: none; opacity: 0; transition: opacity 0.5s; }
+        
+        /* 顶部排版区域 */
+        .header-area { text-align: center; margin-bottom: 25px; }
+        
+        .brand-title { 
+            font-size: 24px; 
+            font-weight: 800; 
+            opacity: 1; 
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .series-tag {
+            font-size: 14px;
+            color: rgba(255,255,255, 0.6); 
+            font-weight: 600;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        h1 { 
+            font-size: 26px; 
+            margin: 10px 0; 
+            font-weight: 700; 
+            line-height: 1.3;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .subtitle { 
+            color: rgba(255,255,255, 0.9); 
+            font-size: 15px; 
+            margin-top: 8px; 
+            font-weight: 500; 
+        }
+
+        /* 列表头部工具栏 */
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 25px 0 15px 0;
+            padding: 0 4px;
+        }
+
+        .instruction-text {
+            text-align: left;
+            font-size: 13px;
+            color: rgba(255,255,255, 0.7);
+            font-weight: 400;
+            margin: 0;
+        }
+
+        .select-all-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .select-all-btn:active {
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(0.95);
+        }
+        
+        /* 日期分割标题 */
+        .date-section-title {
+            color: rgba(255,255,255,0.95);
+            font-size: 18px;
+            font-weight: bold;
+            margin: 30px 0 15px 4px;
+            border-left: 4px solid #fff;
+            padding-left: 10px;
+        }
+
+        /* 卡片样式 */
+        .card { background: var(--card-bg); border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex; align-items: flex-start; transition: all 0.2s ease; border: 1px solid rgba(0,0,0,0); }
+        .card:active { transform: scale(0.98); opacity: 0.9; }
+        .card.selected { border: 2px solid var(--primary-color); background: #f0f5ff; }
+
+        .checkbox-wrapper { margin-right: 16px; padding-top: 4px; display: flex; align-items: center; }
+        .checkbox-wrapper input { width: 22px; height: 22px; accent-color: var(--primary-color); cursor: pointer; }
+        
+        .info { flex: 1; color: var(--text-main); }
+        .time-tag { color: var(--primary-color); font-weight: 700; font-size: 13px; display: inline-block; background: rgba(35, 86, 221, 0.1); padding: 3px 8px; border-radius: 6px; margin-bottom: 6px; }
+        .info h3 { margin: 0 0 4px 0; font-size: 16px; color: var(--text-main); line-height: 1.4; font-weight: 700; }
+        .speaker { color: #333; font-weight: 500; font-size: 14px; margin: 4px 0 2px 0; }
+        .affiliation { color: var(--text-sub); font-size: 12px; line-height: 1.3; margin-bottom: 4px; }
+        .location-badge { font-size: 11px; color: #fff; background-color: #888; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 4px;}
+
+        /* 折叠/展开区域样式 */
+        .hidden-rows { display: none; }
+
+        /* 🟢 关键修改：针对折叠区域内的卡片进行缩进 */
+        .hidden-rows .card {
+            width: 92%;           /* 宽度变窄为92% */
+            margin-left: auto;    /* 左侧边距自动（实现右对齐效果） */
+            margin-right: 0;      /* 右侧贴边（或者稍微留点空隙，默认block流就是贴右） */
+            border-left: 4px solid #aebceb; /* 可选：加一个浅色边框增强“子级”视觉感 */
+            background-color: #fcfdff;      /* 可选：极其轻微的背景色变化 */
+        }
+        
+        /* 展开和收起按钮的公共样式 */
+        .action-btn {
+            width: 100%;
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            border: 1px dashed rgba(255,255,255,0.4);
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            text-align: center;
+            transition: background 0.2s;
+            box-sizing: border-box; /* 确保padding不撑大 */
+        }
+        .action-btn:active { background: rgba(255,255,255,0.3); }
+        
+        /* 收起按钮的特定样式 - 也要跟随右对齐 */
+        .collapse-btn {
+            margin-top: 15px;
+            background: rgba(0,0,0,0.1); 
+            border: 1px solid rgba(255,255,255,0.2);
+            /* 让收起按钮也和子日程保持一样的对齐 */
+            width: 92%;
+            margin-left: auto;
+        }
+
+        /* 按钮区域 */
+        .btn-container { position: fixed; bottom: 30px; left: 0; right: 0; display: flex; justify-content: center; z-index: 100; pointer-events: none; flex-direction: column; align-items: center;}
+        
+        #generateBtn { 
+            pointer-events: auto; 
+            background-color: #ffffff; 
+            color: var(--primary-color); 
+            border: none; 
+            padding: 16px 30px; 
+            border-radius: 40px; 
+            font-size: 17px; 
+            font-weight: 700; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25); 
+            cursor: pointer; 
+            width: 85%; 
+            max-width: 350px; 
+            transition: transform 0.1s; 
+            display: flex; align-items: center; justify-content: center; gap: 8px; 
+        }
+        #generateBtn:active { transform: scale(0.96); }
+        
+        .btn-hint { font-size: 12px; color: #555; margin-top: 10px; text-shadow: none; background: rgba(255,255,255,0.9); padding: 4px 12px; border-radius: 20px; font-weight: 500;}
+        
+        /* 微信遮罩 */
+        #wx-mask { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #1a1a1a; z-index: 99999; color: white; padding: 40px 20px; text-align: center; }
+        .mask-content { text-align: right; margin-right: 20px; margin-top: 20px;}
+        .mask-arrow { font-size: 50px; animation: bounce 1.5s infinite; color: #4db8ff; display: inline-block; margin-bottom: 10px;}
+        .mask-text { font-size: 20px; font-weight: bold; margin-top: 10px; line-height: 1.5; }
+        .mask-sub { font-size: 14px; color: #ccc; margin-top: 15px; font-weight: normal; line-height: 1.5; border-top: 1px solid #333; padding-top: 15px;}
+        @keyframes bounce { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(10px, -10px); } }
+    </style>
+</head>
+<body>
+
+    <!-- 微信拦截遮罩 -->
+    <div id="wx-mask">
+        <div class="mask-content">
+            <div class="mask-arrow">↗</div>
+            <div class="mask-text">
+                Please open in Browser<br>
+                <span style="font-size: 16px">请点击右上角，选择“在浏览器打开”</span>
+            </div>
+            <div class="mask-sub">
+                To prevent data loss, please switch to system browser.<br>
+                为防止选择丢失，请先跳转至浏览器。
+            </div>
+        </div>
+    </div>
+
+    <!-- 主界面 -->
+    <div id="main-content">
+        <!-- 标题区域 -->
+        <div class="header-area">
+            <div class="brand-title">Tencent</div>
+            <div class="series-tag">SIGGRAPH Asia 2025</div>
+            <h1>Exhibition & Workshop Agenda</h1>
+            <p class="subtitle">Dec 16 - Dec 18, 2025</p>
+        </div>
+
+        <!-- 列表头部 -->
+        <div class="list-header">
+            <div class="instruction-text">Please select sessions:</div>
+            <button id="selectAllBtn" class="select-all-btn" onclick="toggleSelectAll()">Deselect All</button>
+        </div>
+
+        <!-- 列表容器 -->
+        <div id="session-list"></div>
+
+        <!-- 按钮区域 -->
+        <div class="btn-container">
+            <button id="generateBtn" onclick="downloadICS()">
+                <span style="font-size: 20px">📅</span> Add to Calendar
+            </button>
+            <div class="btn-hint">Timezone: Hong Kong Time (GMT+8)</div>
+        </div>
+    </div>
+
+<script>
+    // ================= 数据源 =================
+    // 按日期分组数据
+    const agendaData = [
+        {
+            date: "2025/12/16",
+            displayDate: "Dec 16 (Tuesday)",
+            items: [
+                { time: "10:00 - 17:30", title: "🟢 展台开放中", location: "Tencent Booth C01", speaker: "", company: "" },
+                { time: "09:00 - 17:30", title: "Workshop on Neural Graphics & Generative AI", location: "Room S224-225", speaker: "", company: "Full Day Session" },
+                // ⚠️ 折叠分界线
+                { time: "09:00 - 10:00", title: "Welcome Breakfast", location: "Room S224-225", speaker: "", company: "" },
+                { time: "10:00 - 10:15", title: "Opening Session", location: "Room S224-225", speaker: "Ying Shan", company: "Distinguished Scientist at Tencent, Director of ARC Lab" },
+                { time: "10:15 - 10:45", title: "Towards 3D-aware Video World Models", location: "Room S224-225", speaker: "Wenbo Hu", company: "Tencent ARC Lab" },
+                { time: "10:45 - 11:15", title: "A Human-Centered Approach to Multimodal Consistent Video Generation", location: "Room S224-225", speaker: "Tianxiang Zheng", company: "Tencent Hunyuan" },
+                { time: "11:15 - 11:45", title: "GameCraft-2: Instruction-Following Interactive Game Video Generation", location: "Room S224-225", speaker: "Junshu Tang", company: "Tencent Hunyuan" },
+                { time: "12:00 - 13:45", title: "Luncheon & Networking (Tencent Video)", location: "Room S224-225", speaker: "", company: "" },
+                { time: "14:00 - 14:30", title: "Unleashing AI Creativity with ZenStudio", location: "Room S224-225", speaker: "Alan Zhao, Ran Zhang", company: "Tencent Video" },
+                { time: "14:30 - 15:00", title: "AI Redefining Animation Production", location: "Room S224-225", speaker: "Zijiao Zeng", company: "Tencent Games" },
+                { time: "15:00 - 15:30", title: "Frontier Exploration of Rendering in Games", location: "Room S224-225", speaker: "Chao Li", company: "Tencent Games" },
+                { time: "15:30 - 16:00", title: "Real-time Turbulent Flows Simulation for Games", location: "Room S224-225", speaker: "Kui Wu", company: "Tencent Games" },
+                { time: "16:00 - 16:30", title: "Curl-free and Divergence-free Wavelets for CG", location: "Room S224-225", speaker: "Xiaohua Ren", company: "Weixin/WeChat" },
+                { time: "16:30 - 17:30", title: "Panel Session", location: "Room S224-225", speaker: "Host: Yuan Liu", company: "HKUST" }
+            ]
+        },
+        {
+            date: "2025/12/17",
+            displayDate: "Dec 17 (Wednesday)",
+            items: [
+                { time: "10:00 - 17:30", title: "🟢 展台开放中", location: "Tencent Booth C01", speaker: "", company: "" },
+                { time: "18:00 - 21:30", title: "腾讯青云群星未来之夜-维港星河学术派对", location: "Pier 1929, 2F, Wan Chai Ferry Pier", speaker: "", company: "" }
+            ]
+        },
+        {
+            date: "2025/12/18",
+            displayDate: "Dec 18 (Thursday)",
+            items: [
+                { time: "10:00 - 17:30", title: "🟢 展台开放中", location: "Tencent Booth C01", speaker: "", company: "" }
+            ]
+        }
+    ];
+
+    // ================= 逻辑代码 =================
+    
+    // 环境检测
+    (function checkEnvironment() {
+        var ua = navigator.userAgent.toLowerCase();
+        var isWeChat = ua.match(/micromessenger/i) == "micromessenger";
+        
+        if (isWeChat) {
+            document.getElementById('wx-mask').style.display = 'block';
+        } else {
+            var main = document.getElementById('main-content');
+            main.style.display = 'block';
+            setTimeout(function() { main.style.opacity = '1'; }, 50);
+        }
+    })();
+
+    let allSessions = [];
+    let globalIdCounter = 0;
+    const listContainer = document.getElementById('session-list');
+
+    // 渲染循环
+    agendaData.forEach((dayGroup, dayIndex) => {
+        const dateHeader = `<div class="date-section-title">${dayGroup.displayDate}</div>`;
+        listContainer.insertAdjacentHTML('beforeend', dateHeader);
+
+        let dayHtml = "";
+        const isFoldableDay = (dayGroup.date === "2025/12/16");
+        const visibleLimit = 2; 
+
+        dayGroup.items.forEach((item, index) => {
+            const currentId = globalIdCounter++;
+            
+            allSessions.push({
+                id: currentId,
+                date: dayGroup.date,
+                ...item,
+                startTimeStr: item.time.split('-')[0].trim(),
+                endTimeStr: item.time.split('-')[1].trim()
+            });
+
+            let speakerHtml = item.speaker ? `<p class="speaker">${item.speaker}</p>` : '';
+            let companyHtml = item.company ? `<p class="affiliation">${item.company}</p>` : '';
+            let locationHtml = `<span class="location-badge">📍 ${item.location}</span>`;
+
+            const cardHtml = `
+                <div class="card selected" id="card-${currentId}" onclick="toggleCheck('${currentId}')">
+                    <div class="checkbox-wrapper">
+                        <input type="checkbox" id="sess-${currentId}" value="${currentId}" onclick="event.stopPropagation(); updateCardStyle('${currentId}')" checked>
+                    </div>
+                    <div class="info">
+                        <span class="time-tag">${item.time}</span>
+                        <h3>${item.title}</h3>
+                        ${speakerHtml}
+                        ${companyHtml}
+                        ${locationHtml}
+                    </div>
+                </div>
+            `;
+
+            if (isFoldableDay && index >= visibleLimit) {
+                if (index === visibleLimit) {
+                    dayHtml += `<div id="hidden-area-${dayIndex}" class="hidden-rows">`;
+                }
+                
+                dayHtml += cardHtml;
+
+                if (index === dayGroup.items.length - 1) {
+                    // 收起按钮也保持同样的对齐样式
+                    dayHtml += `
+                        <div class="action-btn collapse-btn" onclick="collapseDay(${dayIndex})">
+                            Show Less / 收起 ▲
+                        </div>
+                    `;
+                    dayHtml += `</div>`; 
+                    
+                    const remainingCount = dayGroup.items.length - visibleLimit;
+                    dayHtml += `<div id="expand-btn-${dayIndex}" class="action-btn expand-trigger-btn" onclick="expandDay(${dayIndex})">Show Full Agenda (${remainingCount} more items) ▼</div>`;
+                }
+            } else {
+                dayHtml += cardHtml;
+            }
+        });
+
+        listContainer.insertAdjacentHTML('beforeend', dayHtml);
+    });
+
+    function expandDay(dayIndex) {
+        document.getElementById(`hidden-area-${dayIndex}`).style.display = 'block';
+        document.getElementById(`expand-btn-${dayIndex}`).style.display = 'none';
+    }
+
+    function collapseDay(dayIndex) {
+        const hiddenArea = document.getElementById(`hidden-area-${dayIndex}`);
+        const expandBtn = document.getElementById(`expand-btn-${dayIndex}`);
+        
+        hiddenArea.style.display = 'none';
+        expandBtn.style.display = 'block';
+        
+        expandBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function toggleCheck(id) {
+        const checkbox = document.getElementById(`sess-${id}`);
+        checkbox.checked = !checkbox.checked;
+        updateCardStyle(id);
+    }
+
+    function updateCardStyle(id) {
+        const checkbox = document.getElementById(`sess-${id}`);
+        const card = document.getElementById(`card-${id}`);
+        if (checkbox.checked) {
+            card.classList.add('selected');
+        } else {
+            card.classList.remove('selected');
+        }
+        updateSelectAllBtnState();
+    }
+
+    function toggleSelectAll() {
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        const btn = document.getElementById('selectAllBtn');
+        const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+        const newState = !allChecked;
+
+        checkboxes.forEach(cb => {
+            cb.checked = newState;
+            const card = document.getElementById(`card-${cb.value}`);
+            if (newState) card.classList.add('selected');
+            else card.classList.remove('selected');
+        });
+
+        btn.innerText = newState ? "Deselect All" : "Select All";
+    }
+
+    function updateSelectAllBtnState() {
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+        const btn = document.getElementById('selectAllBtn');
+        btn.innerText = allChecked ? "Deselect All" : "Select All";
+    }
+
+    function downloadICS() {
+        const ua = navigator.userAgent.toLowerCase();
+        const isAndroid = ua.indexOf('android') > -1;
+
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+        if (checkboxes.length === 0) {
+            alert("Please select at least one session.");
+            return;
+        }
+
+        let icsContent = [
+            "BEGIN:VCALENDAR",
+            "VERSION:2.0",
+            "PRODID:-//Tencent//SIGGRAPH Agenda//CN",
+            "CALSCALE:GREGORIAN",
+            "METHOD:PUBLISH",
+            "BEGIN:VTIMEZONE",
+            "TZID:Asia/Hong_Kong",
+            "BEGIN:STANDARD",
+            "TZOFFSETFROM:+0800",
+            "TZOFFSETTO:+0800",
+            "TZNAME:HKT",
+            "DTSTART:19700101T000000",
+            "END:STANDARD",
+            "END:VTIMEZONE"
+        ];
+
+        checkboxes.forEach(box => {
+            const session = allSessions.find(s => s.id == box.value);
+            
+            if (session) {
+                const dateParts = session.date.split('/');
+                const dateStr = dateParts.join('');
+
+                const startRaw = session.startTimeStr.replace(':', '') + '00';
+                const endRaw = session.endTimeStr.replace(':', '') + '00';
+                
+                let description = "";
+                if (session.speaker) description += `Speaker: ${session.speaker}\\n`;
+                if (session.company) description += `Affiliation: ${session.company}\\n`;
+                description += `Location: ${session.location}`;
+                
+                let summary = session.title;
+                const cleanTitle = session.title.replace('🟢 ', '');
+                
+                if (session.speaker && !cleanTitle.includes('展台')) {
+                     summary = `${cleanTitle} - ${session.speaker.split(/,|，|、/)[0]}`; 
+                } else {
+                    summary = cleanTitle;
+                }
+
+                icsContent.push("BEGIN:VEVENT");
+                icsContent.push(`UID:tencent-siggraph-${session.id}-${Date.now()}@tencent.com`);
+                icsContent.push(`DTSTAMP:${getNowUTC()}`);
+                icsContent.push(`DTSTART;TZID=Asia/Hong_Kong:${dateStr}T${startRaw}`);
+                icsContent.push(`DTEND;TZID=Asia/Hong_Kong:${dateStr}T${endRaw}`);
+                icsContent.push(`SUMMARY:${summary}`);
+                icsContent.push(`DESCRIPTION:${description}`);
+                icsContent.push(`LOCATION:${session.location}`); 
+                icsContent.push("END:VEVENT");
+            }
+        });
+
+        icsContent.push("END:VCALENDAR");
+
+        const fileContent = icsContent.join("\r\n");
+        const blob = new Blob([fileContent], { type: 'text/calendar;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'Tencent_Schedule.ics');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        if (isAndroid) {
+            setTimeout(() => {
+                alert("File downloaded.\nPlease OPEN it from notification bar.");
+            }, 500);
+        }
+    }
+
+    function getNowUTC() {
+        const now = new Date();
+        return now.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    }
+</script>
+
+</body>
+</html>
