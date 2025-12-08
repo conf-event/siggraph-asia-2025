@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 标题已更新 -->
     <title>Tencent & SIGGRAPH Agenda</title>
     
     <style>
@@ -125,13 +126,13 @@
         /* 折叠/展开区域样式 */
         .hidden-rows { display: none; }
 
-        /* 🟢 关键修改：针对折叠区域内的卡片进行缩进 */
+        /* 🟢 关键修改：子日程宽度调整为90%，并右对齐 */
         .hidden-rows .card {
-            width: 92%;           /* 宽度变窄为92% */
-            margin-left: auto;    /* 左侧边距自动（实现右对齐效果） */
-            margin-right: 0;      /* 右侧贴边（或者稍微留点空隙，默认block流就是贴右） */
-            border-left: 4px solid #aebceb; /* 可选：加一个浅色边框增强“子级”视觉感 */
-            background-color: #fcfdff;      /* 可选：极其轻微的背景色变化 */
+            width: 90%;           /* 横向长度变为0.9倍 */
+            margin-left: auto;    /* 左边距自动，实现右对齐 */
+            margin-right: 0;      /* 右边距为0，紧贴右侧 */
+            border-left: 4px solid #aebceb; /* 保留子级视觉提示 */
+            background-color: #fcfdff;      
         }
         
         /* 展开和收起按钮的公共样式 */
@@ -148,18 +149,18 @@
             margin-top: 10px;
             text-align: center;
             transition: background 0.2s;
-            box-sizing: border-box; /* 确保padding不撑大 */
+            box-sizing: border-box;
         }
         .action-btn:active { background: rgba(255,255,255,0.3); }
         
-        /* 收起按钮的特定样式 - 也要跟随右对齐 */
+        /* 收起按钮样式：也需要设为90%并右对齐，与子日程保持一致 */
         .collapse-btn {
             margin-top: 15px;
             background: rgba(0,0,0,0.1); 
             border: 1px solid rgba(255,255,255,0.2);
-            /* 让收起按钮也和子日程保持一样的对齐 */
-            width: 92%;
-            margin-left: auto;
+            width: 90%;          /* 宽度90% */
+            margin-left: auto;   /* 右对齐 */
+            margin-right: 0;
         }
 
         /* 按钮区域 */
@@ -348,7 +349,6 @@
                 dayHtml += cardHtml;
 
                 if (index === dayGroup.items.length - 1) {
-                    // 收起按钮也保持同样的对齐样式
                     dayHtml += `
                         <div class="action-btn collapse-btn" onclick="collapseDay(${dayIndex})">
                             Show Less / 收起 ▲
