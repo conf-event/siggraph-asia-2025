@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- 标题已更新 -->
     <title>Tencent & SIGGRAPH Agenda</title>
     
     <style>
@@ -26,6 +25,7 @@
             margin: 0 auto; 
             padding-bottom: 120px; 
             -webkit-tap-highlight-color: transparent; 
+            box-sizing: border-box; /* 确保padding计算在内 */
         }
         
         #main-content { display: none; opacity: 0; transition: opacity 0.5s; }
@@ -109,7 +109,19 @@
         }
 
         /* 卡片样式 */
-        .card { background: var(--card-bg); border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex; align-items: flex-start; transition: all 0.2s ease; border: 1px solid rgba(0,0,0,0); }
+        .card { 
+            background: var(--card-bg); 
+            border-radius: 12px; 
+            padding: 16px; 
+            margin-bottom: 12px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+            display: flex; 
+            align-items: flex-start; 
+            transition: all 0.2s ease; 
+            border: 1px solid rgba(0,0,0,0); 
+            width: 100%; /* 默认占满 */
+            box-sizing: border-box; /* 防止padding撑大 */
+        }
         .card:active { transform: scale(0.98); opacity: 0.9; }
         .card.selected { border: 2px solid var(--primary-color); background: #f0f5ff; }
 
@@ -124,14 +136,14 @@
         .location-badge { font-size: 11px; color: #fff; background-color: #888; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 4px;}
 
         /* 折叠/展开区域样式 */
-        .hidden-rows { display: none; }
+        .hidden-rows { display: none; width: 100%; }
 
-        /* 🟢 关键修改：子日程宽度调整为90%，并右对齐 */
+        /* 🟢 关键修改：手机端适配的缩进逻辑 */
         .hidden-rows .card {
-            width: 90%;           /* 横向长度变为0.9倍 */
-            margin-left: auto;    /* 左边距自动，实现右对齐 */
-            margin-right: 0;      /* 右边距为0，紧贴右侧 */
-            border-left: 4px solid #aebceb; /* 保留子级视觉提示 */
+            width: 75% !important;   /* 强制宽度为 75% */
+            margin-left: auto !important; /* 强制左边距自动，从而右对齐 */
+            margin-right: 0 !important;   /* 确保贴右 */
+            border-left: 4px solid #aebceb; 
             background-color: #fcfdff;      
         }
         
@@ -153,14 +165,14 @@
         }
         .action-btn:active { background: rgba(255,255,255,0.3); }
         
-        /* 收起按钮样式：也需要设为90%并右对齐，与子日程保持一致 */
+        /* 收起按钮样式：保持与子卡片一致的宽度和对齐 */
         .collapse-btn {
             margin-top: 15px;
             background: rgba(0,0,0,0.1); 
             border: 1px solid rgba(255,255,255,0.2);
-            width: 90%;          /* 宽度90% */
-            margin-left: auto;   /* 右对齐 */
-            margin-right: 0;
+            width: 75% !important;       /* 宽度 75% */
+            margin-left: auto !important; /* 右对齐 */
+            margin-right: 0 !important;
         }
 
         /* 按钮区域 */
